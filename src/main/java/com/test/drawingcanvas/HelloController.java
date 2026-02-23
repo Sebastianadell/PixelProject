@@ -10,11 +10,18 @@ public class HelloController {
     private Canvas canvas;
     private GraphicsContext gc;
 
-    @FXML
-    public void initialize(){
-        gc = canvas.getGraphicsContext2D();
-    }
 
+
+    @FXML
+    public void initialize() {
+        gc = canvas.getGraphicsContext2D();
+
+        canvas.setOnMouseDragged(e -> {
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc.lineTo(e.getX(), e.getY());
+            gc.stroke();
+        });
+    }
     @FXML
     public void selectPencil(){
         System.out.println("Pencil Selected");

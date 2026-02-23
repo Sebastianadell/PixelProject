@@ -36,6 +36,7 @@ public class HelloApplication extends Application {
 
        // root.getChildren().add(rect);
 
+
         stage.setScene(scene);
         stage.show();
     }
