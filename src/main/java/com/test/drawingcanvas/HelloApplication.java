@@ -17,8 +17,15 @@ public class HelloApplication extends Application {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/com/test/drawingcanvas/sceneTest.fxml")
         );
-        Scene scene = new Scene(loader.load());
+        Scene scene = new Scene(loader.load(), 800, 600);
+
         stage.setScene(scene);
+
+        stage.setMinWidth(400);
+        stage.setMinHeight(300);
+
+        stage.sizeToScene();
+        //stage.setResizable(false);
         stage.show();
     }
 }
