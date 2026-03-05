@@ -16,7 +16,8 @@ public class HelloController {
     private static final int COLS = 16;
 
     // source of truth grid
-    private Color[][] canvasData = new Color[ROWS][COLS];
+    private static Color[][] canvasData = new Color[ROWS][COLS];
+    // these probably need to be static as well for all users to receive same undo's and redo's
     private Deque<Operation> undoStack = new ArrayDeque<>();
     private Deque<Operation> redoStack = new ArrayDeque<>();
 
@@ -168,5 +169,13 @@ public class HelloController {
         undoStack.push(op);
 
         applyOperation(op);
+    }
+
+    public static int getRows(){
+        return ROWS;
+    }
+
+    public static int getCols(){
+        return COLS;
     }
 }
