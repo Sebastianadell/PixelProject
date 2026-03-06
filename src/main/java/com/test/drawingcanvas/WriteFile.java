@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 
 import java.io.*;
 
-public class FileInputOutput {
+public class WriteFile {
     // Magic Number = PXBMP (50 58 42 4D 50)
     private final byte[] magicNumber= {0x50, 0x58, 0x42, 0x4D, 0x50};
 
@@ -18,6 +18,7 @@ public class FileInputOutput {
 
             //write canvas data
             // need to write dimensions first ? probably a good idea:w
+            // could also add date of creation, last edit time etc.
             output.writeInt(rows);
             output.writeInt(cols);
 
