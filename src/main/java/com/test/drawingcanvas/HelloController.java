@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -16,7 +17,8 @@ public class HelloController {
     private static final int COLS = 16;
 
     // source of truth grid
-    private Color[][] canvasData = new Color[ROWS][COLS];
+    private static Color[][] canvasData = new Color[ROWS][COLS];
+    // these probably need to be static as well for all users to receive same undo's and redo's
     private Deque<Operation> undoStack = new ArrayDeque<>();
     private Deque<Operation> redoStack = new ArrayDeque<>();
 
@@ -63,10 +65,10 @@ public class HelloController {
         }
 
         grid.setOnMouseDragged(e -> {
-            int col = (int)(e.getX() / (grid.getWidth() / COLS));
-            int row = (int)(e.getY() / (grid.getHeight() / ROWS));
+            int col = (int) (e.getX() / (grid.getWidth() / COLS));
+            int row = (int) (e.getY() / (grid.getHeight() / ROWS));
 
-            if (row >= 0 && row < ROWS && col >= 0 && col < COLS){
+            if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
                 applyTool(row, col);
             }
         });
@@ -123,7 +125,7 @@ public class HelloController {
         setPixel(op.row, op.col, op.next);
     }
 
-    private void setPixel(int row, int col, Color color){
+    private void setPixel(int row, int col, Color color) {
         canvasData[row][col] = color;
         pixels[row][col].setFill(color);
     }
@@ -154,19 +156,54 @@ public class HelloController {
     }
 
     @FXML
-    public void selectUndo(){
-        if(undoStack.isEmpty()) return;
+    public void selectUndo() {
+        if (undoStack.isEmpty()) return;
         Operation op = undoStack.pop();
         redoStack.push(op);
-        setPixel(op.row,op.col,op.previous);
+        setPixel(op.row, op.col, op.previous);
     }
+
     @FXML
-    public void selectRedo(){
+    public void selectRedo() {
         if (redoStack.isEmpty()) return;
 
         Operation op = redoStack.pop();
         undoStack.push(op);
 
         applyOperation(op);
+    }
+
+    public static int getRows() {
+        return ROWS;
+    }
+
+    public static int getCols() {
+        return COLS;
+    }
+
+    public void loadNewCanvas(Color[][] newData) {
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLS; c++) {
+                canvasData[r][c] = newData[r][c];
+                pixels[r][c].setFill(newData[r][c]);
+            }
+        }
+    }
+
+
+
+    @FXML
+    public void saveFile() throws IOException {
+        WriteFile wf = new WriteFile();
+        // NOTE need some element to get fileName
+        wf.writeFile(ROWS, COLS, canvasData, "src/Data/test.pxbmp");
+    }
+
+    @FXML
+    public void loadFile() throws IOException{
+        ReadFile rf = new ReadFile();
+        //NOTE once again need some way to get fileName
+        Color[][] pixels = rf.readFile("src/Data/test.pxbmp");
+        loadNewCanvas(pixels);
     }
 }
