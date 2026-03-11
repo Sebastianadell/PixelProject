@@ -1,15 +1,24 @@
 package com.test.drawingcanvas;
 
 import javafx.scene.paint.Color;
+import java.io.Serializable;
 
-public class Operation implements java.io.Serializable{
+public class Operation implements Serializable {
+    private static final long serialVersionUID = 1L;
     public final int row, col;
-    public final Color previous, next;
+    public final double prevR, prevG, prevB, nextR, nextG, nextB;
 
-    public Operation(int row, int col, Color previous, Color next){
+    public Operation(int row, int col, Color previous, Color next) {
         this.row = row;
         this.col = col;
-        this.previous = previous;
-        this.next = next;
+        this.prevR = previous.getRed();
+        this.prevG = previous.getGreen();
+        this.prevB = previous.getBlue();
+        this.nextR = next.getRed();
+        this.nextG = next.getGreen();
+        this.nextB = next.getBlue();
     }
+
+    public Color getPrevious() { return Color.color(prevR, prevG, prevB); }
+    public Color getNext() { return Color.color(nextR, nextG, nextB); }
 }

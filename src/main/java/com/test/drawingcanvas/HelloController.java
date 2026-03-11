@@ -126,10 +126,14 @@ public class HelloController {
     }
 
     private void applyOperation(Operation op) {
-        if(this.server != null) { // dont attempt to write to a nonexistent server
-            this.server.updateServerOperation(op);
+        if(this.client != null) { // if we are the client then send the operation to the server
+            this.client.sendOperation(op);
         }
-        setPixel(op.row, op.col, op.next);
+        if(this.server != null) { // otherwise if we are the host AND we have a server, update server state
+            this.server.updateServerOperation(op);
+            this.server.broadcastToClients(op);
+        }
+        setPixel(op.row, op.col, op.getNext()); //always update UI locally (optimistic concurrency)
     }
 
     private void setPixel(int row, int col, Color color) {
@@ -167,7 +171,7 @@ public class HelloController {
         if (undoStack.isEmpty()) return;
         Operation op = undoStack.pop();
         redoStack.push(op);
-        setPixel(op.row, op.col, op.previous);
+        setPixel(op.row, op.col, op.getPrevious());
     }
 
     @FXML
@@ -218,6 +222,7 @@ public class HelloController {
     public void hostServer() throws BindException, IOException {
         System.out.println("Hosting Server...");
         this.server = new Server(8080);
+        this.server.start();
         this.server.initServerCanvas(canvasData, ROWS, COLS);
     }
 
@@ -225,6 +230,11 @@ public class HelloController {
     public void joinServer() throws UnknownHostException, IOException{
         System.out.println("Joining Server...");
         client = new Client("127.0.0.1", 8080); // keep it localhost for now
+        this.client.listenForOperation((op) -> {
+            javafx.application.Platform.runLater(() -> {
+                applyOperation(op);
+            });
+        });
 
     }
 }
