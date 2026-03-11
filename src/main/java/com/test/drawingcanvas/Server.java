@@ -44,9 +44,9 @@ public class Server {
                 this.in = new ObjectInputStream(s.getInputStream());
                 while(true){
                     Operation op = (Operation) in.readObject();
-                    System.out.println("Server received operation at Row: " + op.row + "Col: " + op.col);
+                    System.out.println("Server received operation at Row: " + op.row + "Col: " + op.col); // debug line
                     updateServerOperation(op);
-                    broadcastToClients(op);
+                    broadcastToClients(op, out);
                 }
             } catch(Exception e){
                 System.out.println("ERROR STARTING SERVER");
@@ -76,14 +76,16 @@ public class Server {
         }
     }
 
-    public void broadcastToClients(Operation op){
+    public void broadcastToClients(Operation op, ObjectOutputStream sender){
         synchronized (clientOutputs){
-            for(ObjectOutputStream out : clientOutputs){
-                try{
-                    out.writeObject(op);
-                    out.flush();
-                } catch (IOException e) {
-                    System.out.println("ERROR BROADCASTING TO CLIENTS");
+            for(ObjectOutputStream out : clientOutputs) {
+                if (out != sender) {
+                    try {
+                        out.writeObject(op);
+                        out.flush();
+                    } catch (IOException e) {
+                        System.out.println("ERROR BROADCASTING TO CLIENTS");
+                    }
                 }
             }
         }

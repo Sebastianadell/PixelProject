@@ -131,9 +131,11 @@ public class HelloController {
         }
         if(this.server != null) { // otherwise if we are the host AND we have a server, update server state
             this.server.updateServerOperation(op);
-            this.server.broadcastToClients(op);
+            this.server.broadcastToClients(op, null);
         }
-        setPixel(op.row, op.col, op.getNext()); //always update UI locally (optimistic concurrency)
+        if(!op.getNext().equals(canvasData[op.row][op.col])){
+            setPixel(op.row, op.col, op.getNext()); //always update UI locally (optimistic concurrency)
+        }
     }
 
     private void setPixel(int row, int col, Color color) {
