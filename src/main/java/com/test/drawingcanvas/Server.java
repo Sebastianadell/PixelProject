@@ -34,16 +34,31 @@ public class Server {
 
     public void start() {
         new Thread(() -> {
-            try {
-                this.s = ss.accept();
-                ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                synchronized (clientOutputs) { clientOutputs.add(out); }
-                this.in = new ObjectInputStream(s.getInputStream());
-                while (true) {
-                    Operation op = (Operation) in.readObject();
-                    processOperation(op, out);
+            while (true) {
+                try {
+                    Socket socket = ss.accept();
+
+                    ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                    synchronized (clientOutputs) {
+                        clientOutputs.add(out);
+                    }
+
+                    new Thread(() -> {
+                        try {
+                            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                            while (true) {
+                                Operation op = (Operation) in.readObject();
+                                processOperation(op, out);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) { e.printStackTrace(); }
+            }
         }).start();
     }
 
